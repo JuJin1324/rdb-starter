@@ -36,7 +36,8 @@
 > Phantom READ
 > 트랜잭션 A 가 시작되고 트랜잭션 B 에서 row 를 1개 Insert 하고 커밋한다. 그 후 트랜잭션 A 에서 트랜잭션 B 에서 Insert 한 row 를 조회하려해도 
 > 조회되지 않는다(여기까지는 정상). 하지만 트랜잭션 A 에서 조회되지 않았던 row 의 ID 로 Update 문을 실행하면 Update 가 정상적으로 진행되며,
-> 이후부터 해당 row 의 ID 로 조회를 시도하려 하면 조회가 되버린다.
+> 이후부터 해당 row 의 ID 로 조회를 시도하려 하면 조회가 되버린다.  
+> mySQL 의 InnoDB 엔진에서는 REPEATABLE READ 에서도 Phantom READ 가 발생하지 않는다.   
 
 ### SERIALIZABLE
 > InnoDB에서 기본적으로 순수한 SELECT 작업은 아무런 잠금을 걸지않고 동작하는데,  
