@@ -89,6 +89,18 @@
 > null and null => unknown  
 > null or null => unknown  
 
+### group by
+> group by 뒤에 애트리뷰트가 2개 이상 올 수 있다. 하나의 애트리뷰트로만 group by 를 할 수 있지만 추가적으로 애트리뷰트 2개 이상으로도 가능하다.  
+> order by 처럼 선행 후행 방식이 아닌 2개 이상의 애트리뷰트를 조합해서 group by 된다.  
+> 예를 들어 GROUP BY 성별, 지역 이라고 했을 때에, 경기도 여성 / 경기도 남성 / 서울 여성 / 서울 남성 이런 식으로 성별과 지역을 이용해 만들 수 있는 
+> 모든 경우의 수로 그룹을 만들수 있게 된다.  
+> 
+> 참조사이트: [group by에 두 개 이상의 column을 쓰는 경우](https://www.inflearn.com/questions/27971/group-by%EC%97%90-%EB%91%90-%EA%B0%9C-%EC%9D%B4%EC%83%81%EC%9D%98-column%EC%9D%84-%EC%93%B0%EB%8A%94-%EA%B2%BD%EC%9A%B0) 
+
+### group by - having
+> group by 뒤에 having 키워드는 group by 된 결과를 기반으로 추가 조건을 줘서 필터링하는 것.  
+> 즉 group by 이전에 where 로 필터가 되고 where 와 group by 가 실행된 후에 그 결과를 having 절에서 추가 필터링하는 개념.
+
 ---
 
 ## join
