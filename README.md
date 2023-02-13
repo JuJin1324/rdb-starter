@@ -1,5 +1,16 @@
 # rdb-starter
 
+## Transaction
+### Auto commit 설정 
+> MySQL 기준 Auto commit 설정 확인 쿼리: `select @@AUTOCOMMIT;`  
+> 결과가 '1'인 경우: 자동 Auto commit 활성화 상태.   
+> 결과가 '0'인 경우: 자동 Auto commit 비활성화 상태, 수동 커밋 필요.   
+>
+> Auto commit 설정 활성화 쿼리: `SET autocommit=1;`  
+> Auto commit 설정 비활성화 쿼리: `SET autocommit=0;`   
+
+---
+
 ## set 과 multiset
 ### set
 > 중복을 허용하지 않는 유일한 원소만 가질 수 있는 자료구조이다.
