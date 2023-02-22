@@ -9,6 +9,13 @@
 > Auto commit 설정 활성화 쿼리: `SET autocommit=1;`  
 > Auto commit 설정 비활성화 쿼리: `SET autocommit=0;`   
 
+### ACID
+> 트랜잭션의 속성을 정의해놓은 것.  
+> Atomicity(원자성): 트랜잭션에 묶인 쿼리가 모두 성공하지 않고 중간에 하나라도 쿼리가 실패하면 트랜잭션 내에서 실행되었던 쿼리를 전부 롤백시키는 것.  
+> Consistency(일관성): DB 의 제약사항(constraint) 위반시 트랜잭션을 롤백시키는 것.  
+> Isolation(격리성): 여러 트랜잭션들이 동시에 실행될 때도 혼자 실행되는 것처럼 동작하게 만드는 것. DBMS 는 여러 종류의 Isolation level 을 제공.  
+> Durability(영구성): 커밋된 트랜잭션은 DB에 영구적으로 저장되는 것.  
+
 ---
 
 ## set 과 multiset
