@@ -1,5 +1,24 @@
 # rdb-starter
 
+## Concurrency control
+### write-lock(exclusive lock)
+> 데이터를 read/write 할 때 사용한다.  
+> 다른 tx 가 같은 데이터를 read/write 하는 것을 허용하지 않는다.  
+
+### read-lock(shared lock)
+> 데이터를 read 할 때 사용한다.  
+> 다른 tx 가 같은 데이터를 read 하는 것은 허용한다. write 는 허용하지 않는다.  
+
+### 2PL protocol(two-phase locking)
+> tx 에서 모든 locking operation 이 최초의 unlock operation 보다 먼저 수행되도록 하는 것. 
+> 트랜잭션 내에서 먼저 처음에 필요한 락을 모두 획득 후 쿼리를 진행 후에 필요 없어진 락들을 차례차례 unlock 하는 방식.   
+> 
+> Expanding phase: 처음이 필요한 락을 모두 획득하는 phase  
+> Shrinking phase: 처음에 취득한 lock 들을 반환만 하고 취득하지 않는 phase  
+> 이 2개의 phase 를 사용하는 방식이 2PL protocol(two-phase locking) 이다.
+
+---
+
 ## Transaction
 ### Auto commit 설정 
 > MySQL 기준 Auto commit 설정 확인 쿼리: `select @@AUTOCOMMIT;`  
@@ -174,5 +193,4 @@
 
 ### 참조사이트
 > [[db] 트랜잭션 격리 수준(isolation level)](https://joont92.github.io/db/%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EA%B2%A9%EB%A6%AC-%EC%88%98%EC%A4%80-isolation-level/)
-
-
+> [DB 트랜잭션 isolation 속성과 lost update](https://easy-code-yo.tistory.com/38)
