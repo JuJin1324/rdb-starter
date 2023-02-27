@@ -17,6 +17,15 @@
 > Shrinking phase: 처음에 취득한 lock 들을 반환만 하고 취득하지 않는 phase  
 > 이 2개의 phase 를 사용하는 방식이 2PL protocol(two-phase locking) 이다.
 
+### 요점
+> MVCC 이전에는 동시성 처리를 위해서 lock 및 2PL protocol 을 통해서 해결하려함.  
+> read-lock 은 다른 트랜잭션에서 데이터를 read-lock 하는 것을 허용하지만 그 외에 write-lock 은 다른 트랜잭션에서 데이터를
+> write-lock 하는 것을 허용하지 않음.   
+> write-lock 과 write-lock 은 동시성을 처리할 수 없음이 자명함. 하지만 read-lock 과 write-lock 을 동시에 못하게 하고 
+> read-lock 과 read-lock 만 동시성 처리가 가능하게 하면 동시성 처리가 너무 안됨.
+> 
+> 그래서 read-lock 과 write-lock 을 동시성으로 처리하기 위해서 도입된 것이 MVCC 임.  
+
 ---
 
 ## Transaction
