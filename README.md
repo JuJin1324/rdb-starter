@@ -17,7 +17,10 @@
 > Shrinking phase: 처음에 취득한 lock 들을 반환만 하고 취득하지 않는 phase  
 > 이 2개의 phase 를 사용하는 방식이 2PL protocol(two-phase locking) 이다.
 
-### 요점
+---
+
+## MVCC
+### 등장 배경
 > MVCC 이전에는 동시성 처리를 위해서 lock 및 2PL protocol 을 통해서 해결하려함.  
 > read-lock 은 다른 트랜잭션에서 데이터를 read-lock 하는 것을 허용하지만 그 외에 write-lock 은 다른 트랜잭션에서 데이터를
 > write-lock 하는 것을 허용하지 않음.   
@@ -25,6 +28,17 @@
 > read-lock 과 read-lock 만 동시성 처리가 가능하게 하면 동시성 처리가 너무 안됨.
 > 
 > 그래서 read-lock 과 write-lock 을 동시성으로 처리하기 위해서 도입된 것이 MVCC 임.  
+
+### 특징
+> 1.MVCC 는 isolation level 을 기준으로 가장 최근에 commit 된 데이터를 읽는다.  
+> 2.마지막 데이터만 읽는 것이 아닌 특정 시점의 데이터를 읽을 수 있기 때문에 MVCC 는 데이터 변화(write한 데이터) 이력을 관리한다.  
+> 3.read 와 write 는 서로를 block 하지 않는다.  
+
+### Locking read
+> `For update`:   
+> `For share`:
+> 
+> 참조사이트: []()
 
 ---
 
@@ -170,6 +184,8 @@
 > 문제: A 트랜잭션이 1번 row 를 조회하고 로직을 진행하다가 B 트랜잭션에서 1번 row 를 Update 후 commit 을 한다.
 > 그 후 끝나지 않은 A 트랜잭션에서 다시 1번 row 를 조회하면 업데이트된 1번 row 가 조회된다. 결과적으로 동일 트랜잭션 내에서 동일한 row 를 조회하는데
 > 결과가 달라질 수 있는 문제가 발생할 수 있음.  
+> 
+> 또한 Lost update 가 발생할 수 있다.  
 
 ### REPEATABLE READ
 > 트랜잭션이 시작되기 전에 커밋된 내용에 대해서만 조회할 수 있는 격리 수준이다.  
@@ -188,12 +204,21 @@
 > 트랜잭션 A 에서 name='1' 은 조회는 가능하지만 업데이트를 Undo 영역을 통해서 동시성을 해결할 수는 없다.  
 > 다만 해당 예시를 보면 where 구문의 name 칼럼이 아닌 ID(Primary Key) 칼럼을 통해서 변하지 않는 값을 where 구문으로 조건을 주게되면 
 > 트랜잭션 A 에서 Update 시에도 Update 가 유효하다.  
->
-> Phantom READ  
+> 
+> 2.Phantom READ  
 > 트랜잭션 A 가 시작되고 트랜잭션 B 에서 row 를 1개 Insert 하고 커밋한다. 그 후 트랜잭션 A 에서 트랜잭션 B 에서 Insert 한 row 를 조회하려해도 
 > 조회되지 않는다(여기까지는 정상). 하지만 트랜잭션 A 에서 조회되지 않았던 row 의 ID 로 Update 문을 실행하면 Update 가 정상적으로 진행되며,
 > 이후부터 해당 row 의 ID 로 조회를 시도하려 하면 조회가 되버린다.  
 > mySQL 의 InnoDB 엔진에서는 REPEATABLE READ 에서도 Phantom READ 가 발생하지 않는다.   
+>
+> Lost update 방지  
+> PostgreSQL 의 REPEATABLE READ 에서는 같은 데이터에 먼저 update 한 트랜잭션이 commit 되면 
+> 나중 트랜잭션은 rollback 되게하여 Lost update 를 방지한다.  
+> 
+> MySQL 의 REPEATABLE READ 에서는 Lost update 를 방지하기 위해서 Locking read 를 통해서 read 시에도 write-lock 을 건다.  
+> write-lock 을 건 이후 commit 을 통해서 unlock 후 다른 트랜잭션에서 해당 데이터를 read 하게되면 `locking read 는 가장 최근의 
+> commit 된 데이터를 읽는다.`이기 때문에 lost update 가 방지된다.  
+> 
 
 ### SERIALIZABLE
 > InnoDB 에서 기본적으로 순수한 SELECT 작업은 아무런 잠금을 걸지않고 동작하는데,  
