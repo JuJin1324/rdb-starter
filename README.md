@@ -92,19 +92,20 @@
 ## DML(Data Manipulation Language)
 ### like
 > `%`: 0~N 개의 문자 검색  
-> ex) nickname like '%동%' => 결과 값으로 땡땡땡동땡 과 같이 앞뒤로 붙는 글자가 0개 ~ N개가 될 수 있음.
+> ex) `nickname like '%동%'` => 결과 값으로 땡땡땡동땡 과 같이 앞뒤로 붙는 글자가 0개 ~ N개가 될 수 있음.
 > 
 > `_`: 1개의 문자 검색  
-> ex) nickname like '_동_' => 결과 값으로 문동은 과 같이 1글자만 대응됨.  
+> ex) `nickname like '_동_'` => 결과 값으로 문동은 과 같이 1글자만 대응됨.  
 
 ### exists
-> 서브쿼리가 반화나는 결과값이 있는지를 조사한다.
+> 서브쿼리가 반환하는 결과값이 있는지를 조사한다.
 > 단지 반환된 행이 있는지 없는지만 보고 값이 있으면 참 없으면 거짓을 반환한다.
 >
-> 한 테이블이 다른 테이블과 외래키(FK)와 같은 관계가 있을 때 유용  
-> 조건에 해당하는 ROW의 존재 유무와 이후 더 수행하지 않음 (지연 평가 원리 이기 때문에 성능이 좋다)  
-> 일반적으로 SELECT절까지 가지 않기에 IN에 비해 속도나 성능면에서 더 좋음  
-> 반대로 조건에 맞지 않는 ROW만 추출하고 싶으면 NOT EXISTS  
+> 한 테이블이 다른 테이블과 외래키(FK)를 통한 관계가 있을 때 유용  
+> 조건에 해당하는 ROW 의 존재 유무만 판단하고 이후 더 추가 로직을 수행하지 않음(지연 평가 원리 이기 때문에 성능이 좋다).  
+> 일반적으로 SELECT 절까지 가지 않기에 IN에 비해 속도나 성능면에서 더 좋음
+> 
+> 반대로 조건에 맞지 않는 ROW 만 추출하고 싶으면 NOT EXISTS  
 > 쿼리 순서 : 메인 쿼리 → EXISTS 쿼리  
 > 
 > 예시: 주문한 적이 있는(주문이 존재하는) 사용자를 알고 싶은 경우
@@ -166,7 +167,8 @@
 ## join
 ### inner join
 > inner join 의 경우 join condition 이 true 인 경우의 tuple 만 반환  
-> 예를 들어 employee 테이블과 department 테이블이 inner join 을 할 때 employee tuple 에 foreign key 인 dept_id 가 null 인 경우 해당 tuple 은 결과 값에 나오지 않는다.  
+> 예를 들어 employee 테이블과 department 테이블이 inner join 을 할 때 employee tuple 에 foreign key 인 dept_id 가 null 인 경우 해당 tuple 의 
+> 결과 값이 unknown 이기 때문에 결과 ROW 에 나오지 않는다.  
 
 ---
 
