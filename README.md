@@ -35,10 +35,23 @@
 > 3.read 와 write 는 서로를 block 하지 않는다.  
 
 ### Locking read
-> `For update`:   
-> `For share`:
+> PostgreSQL 의 경우 isolation level 이 REPEATABLE READ 면 추가 설정 없이 Lost Update 를 방지하면서 동시성 처리를 제공한다.  
+> 하지만 MySQL 의 경우 isolation level 이 REPEATABLE READ 만으로는 Lost Update 를 방지하지 못하여 REPEATABLE READ 과 
+> Locking read 를 통해서 Lost Update 방지 및 동시성 처리를 제공해야한다.   
 > 
-> 참조사이트: []()
+> 특징  
+> locking read 는 MySQL 에서는 write lock 이 걸린 데이터에 접근하려하면 대기 후 
+> lock 풀려서 조회할 때 가장 최근에 commit 된 데이터를 읽는다.
+> 
+> locking read 는 PostgreSQL 에서는 먼저 write lock 이 걸린 데이터에 접근하려하면 대기 후 
+> lock 풀려서 조회할 때 먼저 update 한 tx 가 있어서 해당 tx 가 commit 되면 나중 tx 는 rollback 된다.
+> 
+> 종류
+> write-lock: `select ... for update`  
+> 조회 시 뒤에 `for update` 를 기재하여 write-lock 을 건다.  
+> 
+> read-lock: `select ... for share`  
+> 조회 시 뒤에 `for share` 를 기재하여 read-lock 을 건다.
 
 ---
 
