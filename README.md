@@ -27,31 +27,56 @@
 > write-lock 과 write-lock 은 동시성을 처리할 수 없음이 자명함. 하지만 read-lock 과 write-lock 을 동시에 못하게 하고 
 > read-lock 과 read-lock 만 동시성 처리가 가능하게 하면 동시성 처리가 너무 안됨.
 > 
-> 그래서 read-lock 과 write-lock 을 동시성으로 처리하기 위해서 도입된 것이 MVCC 임.  
+> MVCC의 주 목적은 Lock을 사용하지 않는 일관된 읽기를 제공하는 것이다.  
+> Lock을 사용하지 않는 이유는, 베타적 락으로 인해 다른 트랜잭션이 해당 데이터를 read하기 위해 기다리는 상황이 발생하고, 이런 트랜잭션들이 증가한다면 성능 저하로 이어지기 때문이다.  
+> 궁극적인 목적은 Lock을 사용하지 않음으로써 성능을 향상시키기 위함이다.  
+> 참조사이트: [MySQL MVCC란?](https://velog.io/@znftm97/MySQL-MVCC%EB%9E%80)
 
-### 특징
-> 1.MVCC 는 isolation level 을 기준으로 가장 최근에 commit 된 데이터를 읽는다.  
-> 2.마지막 데이터만 읽는 것이 아닌 특정 시점의 데이터를 읽을 수 있기 때문에 MVCC 는 데이터 변화(write한 데이터) 이력을 관리한다.  
-> 3.read 와 write 는 서로를 block 하지 않는다.  
+### 특징 - 공통
+> 1.조회 시 commit 된 상태의 데이터로 조회한다.  
+> 2.마지막 데이터만 읽는 것이 아닌 특정 시점의 데이터를 읽을 수 있기 때문에 MVCC 는 데이터 변화(write한 데이터) 이력을 관리한다.    
+> 3.read 와 write 는 서로를 block 하지 않는다.
+
+### READ COMMITTED 
+> 1.MVCC 는 isolation level 을 기준으로 가장 최근에 commit 된 데이터를 읽는다.    
+> READ COMMITTED 의 경우 tx 시점과 상관 없이 commit 된 데이터로 읽는다.   
+> 그렇기 때문에 2개 이상의 tx 에서 동일 데이터를 조회한 후 서로 업데이트할 경우 한쪽의 Update 가 사라지는 Lost Update 가 발생할 수 있다.     
+
+### REPEATABLE READ
+> REPEATABLE READ 의 경우 tx 시작 전에 commit 된 데이터만 읽는다.  
+> 
+> PostgreSQL 기준으로 2개 이상의 tx 에서 동일 데이터를 조회한 후 서로 업데이트할 경우 먼저 업데이트한 tx 가 commit 한 경우 
+> 다음 tx 가 commit 하려하면 다음 tx 는 rollback 되서 Lost Update 를 방지한다.  
+> 
+> MySQL 기준으로 2개 이상의 tx 에서 동일 데이터를 조회한 후 서로 업데이트할 경우 먼저 업데이트한 tx 가 commit 한 경우 
+> 다음 tx 가 commit 하려하면 다음 tx 는 그대로 commit 이 되서 Lost Update 가 그대로 발생한다.  
+> MySQL 은 MVCC + REPEATABLE READ 만으로는 Lost Update 를 막을 수 없으며 그래서 MySQL 에서는 Lost Update 방지를 위해서 추가적으로 
+> Locking read 를 사용한다. 
 
 ### Locking read
-> PostgreSQL 의 경우 isolation level 이 REPEATABLE READ 면 추가 설정 없이 Lost Update 를 방지하면서 동시성 처리를 제공한다.  
-> 하지만 MySQL 의 경우 isolation level 이 REPEATABLE READ 만으로는 Lost Update 를 방지하지 못하여 REPEATABLE READ 과 
-> Locking read 를 통해서 Lost Update 방지 및 동시성 처리를 제공해야한다.   
-> 
-> 특징  
-> locking read 는 MySQL 에서는 write lock 이 걸린 데이터에 접근하려하면 대기 후 
-> lock 풀려서 조회할 때 가장 최근에 commit 된 데이터를 읽는다.
-> 
-> locking read 는 PostgreSQL 에서는 먼저 write lock 이 걸린 데이터에 접근하려하면 대기 후 
-> lock 풀려서 조회할 때 먼저 update 한 tx 가 있어서 해당 tx 가 commit 되면 나중 tx 는 rollback 된다.
+> locking read 는 DBMS 내부에서 설정으로 자동 동작하는 것이 아닌 조회 시 개발자가 select 문의 끝에 `for update` 혹은 `for share` 와 같은 
+> 문장을 기재해서 lock 을 걸어서 동작한다. (여기서 lock 은 Record lock 을 뜻한다)
+> MySQL 에서는 MVCC + REPEATABLE READ 만으로는 Lost Update 를 막을 수 없었다. 
+> 하지만 locking read 를 통해서 조회 시 `for update` 를 통해서 write lock 걸어서 2개 이상의 tx 에서 조회 후 데이터 수정이 있었다고 가정해보자.
+> 두 tx 중 먼저 write lock 을 획득한 tx 에서는 로직이 수행되고 write lock 을 획득하지 못한 tx 는 대기상태가 된다.
+> 먼저 lock 획득한 tx 가 commit 한 후 다음 tx 가 대기상태가 풀려서 해당 데이터를 write lock 걸어서 조회하면 이전 tx 에서 commit 되어 수정된 데이터가 조회된다.
+>   
+> 그러니까 MySQL 에서 REPEATABLE READ 사용 시 발생할 수 있는 Lost Update 문제를 한 tx 가 write lock 을 걸면 다른 tx 에서 write lock 걸어서 조회하려할 때
+> 대기상태로 두는 방식으로 Lost Update 를 대응하고, PostgreSQL 은 lock 을 걸지 않고 두 tx 가 동일 데이터를 조회할 때 한 tx 에서 먼저 수정 후 commit 해버리면 
+> 다음 tx 에서는 rollback 을 시켜버리는 방식으로 Lost Update 를 대응했다.  
+> 주의점은 PostgreSQL 에서 locking read 를 사용하여 2개 이상의 tx 에서 동일 데이터에 write lock 걸어서 조회하는 경우,
+> 먼저 lock 을 획득한 tx 에서 수정 후 commit 한 후에 다음 tx 에서 대기상태 후 write lock 을 걸어서 조회하려하면 rollback 이 수행된다.  
+> 즉 PostgreSQL 은 locking read 를 걸든 안걸든 MVCC + REPEATABLE READ 가 동작하는 방식이 동일하다.  
 > 
 > 종류
 > write-lock: `select ... for update`  
-> 조회 시 뒤에 `for update` 를 기재하여 write-lock 을 건다.  
+> 조회 시 뒤에 `for update` 를 기재하여 다른 tx 에서는 read-lock 및 write-lock 를 모두 걸 수 없도록 write-lock 을 건다.  
 > 
 > read-lock: `select ... for share`  
-> 조회 시 뒤에 `for share` 를 기재하여 read-lock 을 건다.
+> 조회 시 뒤에 `for share` 를 기재하여 다른 tx 에서는 read-lock 만 걸 수 있도록 read-lock 을 건다.
+
+### MVCC - MySQL - JPA
+> TODO
 
 ---
 
