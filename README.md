@@ -1,5 +1,37 @@
 # rdb-starter
 
+## Index
+### 사용되는 곳
+> 1.where 조건 시 full-scan 이 아닌 인덱스 스캔으로 빠르게 조회.  
+> 2.order by 및 group by 시 빠른 처리.  
+
+### Primary key
+> Primary key 에는 따로 인덱스를 따로 생성할 필요 없이 RDBMS 에서 자동 생성해준다.    
+
+### Foreign key
+> Foreign key 에는 MySQL 사용 시 인덱스를 따로 생성할 필요 없이 RDBMS 에서 자동 생성해준다.   
+
+### 쿼리
+> 테이블 별 인덱스 조회: `show index from <테이블명>`  
+> 인덱스 생성: `create index <인덱스명> on <테이블명> ( 칼럼명1, 칼럼명2, ... );`  
+> 유니크 인덱스 생성: `create unique index <인덱스명> on <테이블명> ( 칼럼명1, 칼럼명2, ... );`   
+
+### Multi-column index
+> 멀티 컬럼 인덱스 생성 시 가장 왼쪽의 인덱스부터 기준으로 삼아서 인덱스가 정렬된다.  
+> 예를 들어서 인덱스에 a, b 칼럼으로 멀티 칼럼 인덱스를 생성 시 왼쪽인 a 칼럼을 우선으로 정렬이 이루어진 후 다음 b 칼럼을 기준으로 2차 정렬을 하여
+> 인덱스가 저장된다.  
+
+### 쿼리 시 index 사용 여부 확인
+> 쿼리 앞에 `explain` 키워드를 붙여서 확인한다.  
+> 예시) `explain select * from member where id = 5;`  
+
+### 주의 사항
+> 이미 서비스 중인 테이블에 index 를 추가할 경우에는 주의하여 추가해야한다.  
+> 많은 row 가 있는 테이블에 index 를 추가할 경우 인덱스 생성 시간이 길게는 몇 십분도 걸릴 수 있으며, 인덱스 생성 시에는 write 성능을 저하시키기 
+> 때문에 트래픽이 적은 시간을 골라서 index 를 생성하는 것을 권장한다.(Read 성능은 크게 저하되지 않는다.)  
+
+---
+
 ## Concurrency control
 ### write-lock(exclusive lock)
 > 데이터를 read/write 할 때 사용한다.  
