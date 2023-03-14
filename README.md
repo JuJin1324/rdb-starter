@@ -18,6 +18,22 @@
 
 ---
 
+## Sharding
+### Horizontal partitioning
+> 테이블에 row 가 많이 쌓이게 되면 그만큼 인덱스 정보 역시 많이 쌓이게 된다.
+> 인덱스가 많이 쌓이게되면 데이터 삽입/삭제 시 B tree 의 노드 정렬 과정에 걸리는 시간이 길어질 수 있다.
+> 그래서 Horizontal partitioning 을 통해서 row 를 동일한 스키마의 테이블의 갯수를 늘려서 나눠서 저장하는 것이 Horizontal partitioning 이다.  
+> 하나의 DB 서버에 테이블의 갯수를 늘려서 저장하면 Horizontal partitioning 이고, 늘린 테이블을 서로 다른 각각의 DB 서버를 만들어서 나누면 Sharding 이다.  
+> Sharding 하여 각 DB 서버로 테이블을 나누게 되면 하나의 DB 서버를 사용할 때 발생한 트래픽이 여러 DB 서버로 분산된다.  
+
+### Partition key
+> Hash 알고리즘을 통해서 각 테이블로 파티셔닝이 되는데 Hash 알고리즘에 사용할 key 를 partition key 라고 한다.  
+> partition key 를 통해서 조회하게 되면 해당 partition key 를 가지고 있는 DB 서버에서만 데이터를 탐색하면 된다.  
+> 하지만 partition key 가 아닌 칼럼으로 조회 시 모든 DB 서버에서 데이터를 탐색해야 한다.  
+> 그러므로 사용하는 애플리케이션에서 특정 key 를 통해서만 조회를 해도 문제 없도록 데이터 엑세스 패턴을 고민하여 partition key 설계를 할 필요가 있다.
+
+---
+
 ## Index
 ### 사용되는 곳
 > 1.where 조건 시 full-scan 이 아닌 인덱스 스캔으로 빠르게 조회.  
