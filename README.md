@@ -1,5 +1,23 @@
 # rdb-starter
 
+## Data migration
+### 기본
+> TODO
+
+### 무중단 migration
+> TODO
+
+---
+
+## Primary key
+### Sequential key
+> TODO
+
+### UUIDv4
+> TODO
+
+---
+
 ## Index
 ### 사용되는 곳
 > 1.where 조건 시 full-scan 이 아닌 인덱스 스캔으로 빠르게 조회.  
