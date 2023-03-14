@@ -30,6 +30,16 @@
 > 많은 row 가 있는 테이블에 index 를 추가할 경우 인덱스 생성 시간이 길게는 몇 십분도 걸릴 수 있으며, 인덱스 생성 시에는 write 성능을 저하시키기 
 > 때문에 트래픽이 적은 시간을 골라서 index 를 생성하는 것을 권장한다.(Read 성능은 크게 저하되지 않는다.)  
 
+### B tree
+> index 는 B tree 를 사용하여 관리된다.  
+> B tree 사용 시 Binary tree 인 AVL tree, red-black tree 보다 장점은 다음과 같다.  
+> 1.B tree 인덱스는 Binary tree 에 비해 Secondary storage(SSD or HDD) 에 접근을 적게 한다.  
+> 2.B tree 노드는 block 단위의 저장 공간을 알차게 사용할 수 있다. Secondary storage 에서 Main memory(RAM) 으로 데이터를 로드할 때는 일정 block 단위로
+> 데이터를 로드하기 때문에 찾는 데이터 이상의 데이터를 로드할 수 밖에 없다. Binary tree 의 경우 한 노드가 가지고 있는 정보가 적은 반면 B tree 는 Binary tree 에 비해
+> 한 노드가 가지고 있는 정보가 많아 같은 block 단위의 데이터 로드 시 보다 의미 있는 데이터가 많이 포함되어 있다.
+> 
+> hash index 사용 시에는 삽입/삭제/조회의 시간 복잡도가 O(1) 이지만 equality(=) 조회만 가능하고 범위 기반 검색이나 정렬에는 사용될 수 없다는 단점이 있다.
+
 ---
 
 ## Concurrency control
