@@ -395,3 +395,10 @@
 > maxLifetime 은 connection time limit(wait_timeout) 보다 몇 초 짧게 설정해야 한다. maxLifetime 과 wait_timeout 이 동일하다면 
 > 어떤 connection 이 maxLifetime 에 거의 다 되어 1초 이하로 남았다고 가정해보자. 그런데 해당 connection 이 요청되어 쿼리가 DB 로 전송되는 중에
 > wait_timeout 이 되어버리면 도중에 에러가 날 수 있음으로 wait_timeout 이 발생하지 않도록 maxLifetime 을 wait_timeout 보다 몇 초 정도 적게 설정하자.  
+>
+> `connectionTimeout`  
+> pool 에서 connection 을 받기 위해 최대로 대기하는 시간.  
+> 트래픽이 몰려 pool 에 있는 connection 이 모두 사용되고 있을 때 추가로 요청이 발생하면 해당 요청은 pool 에서 connection 을 받기 위해 대기하게 된다.
+> 이때 connectionTimeout 에 설정한 시간까지 요청이 대기하게 되고 대기 시간이 설정한 시간을 넘어가면 Exception 이 발생하게 된다.    
+> connectionTimeout 은 결국 트래픽이 몰렸을 때 애플리케이션을 사용하는 유저가 최대 얼마의 시간까지 기다리게할 것인가를 설정하는 값이다.  
+> 일반적으로 사용자는 10초 이상을 응답 대기에 사용하지 않을 가능성이 크기 때문에 적절한 값을 설정하는 것이 중요하다.  
