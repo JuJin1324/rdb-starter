@@ -1,12 +1,36 @@
-[client]
-default-character-set = utf8
-
-# Import all .cnf files from configuration directory
 [mysqld]
-skip-host-cache
 skip-name-resolve
-lower_case_table_names  = 1
-transaction-isolation   = REPEATABLE-READ
-collation-server        = utf8mb4_general_ci
-character-set-server    = utf8mb4
-max_connections         = 512
+default_storage_engine = innodb
+default_tmp_storage_engine = innodb
+default-time-zone = '+00:00'
+lower_case_table_names = 1
+transaction-isolation = REPEATABLE-READ
+collation-server = utf8mb4_general_ci
+character-set-server = utf8mb4
+character-set-filesystem = utf8mb4
+
+### For Dev
+max_connections = 100
+
+innodb_sort_buffer_size = 5M
+
+innodb_log_files_in_group = 2
+innodb_log_file_size = 1024M
+
+innodb_buffer_pool_size = 200M
+innodb_buffer_pool_instances = 1
+innodb_io_capacity = 100
+innodb_io_capacity_max = 400
+
+### For Production
+#max_connections = 512
+
+#innodb_sort_buffer_size = 64M
+
+#innodb_log_files_in_group = 3
+#innodb_log_file_size = 2048M
+
+#innodb_buffer_pool_size = 20G
+#innodb_buffer_pool_instances = 10
+#innodb_io_capacity = 1000
+#innodb_io_capacity_max = 5000
