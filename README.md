@@ -269,6 +269,11 @@
 ---
 
 ## Index
+### 특징
+> 조회 속도의 향상 및 시스템 부하를 줄여, 시스템 전체 성능 향상을 위해서 사용한다.  
+> 하지만 index 를 위한 추가 저장 공간이 필요하고 데이터가 많이 있다면 생성에 많은 시간이 걸린다.  
+> INSERT, UPDATE, DELETE 와 같이 조회 외에 데이터 업데이트가 자주 발생하면 성능이 많이 하락할 수 있다.  
+
 ### 사용되는 곳
 > 1.where 조건 시 full-scan 이 아닌 인덱스 스캔으로 빠르게 조회.  
 > 2.order by 및 group by 시 빠른 처리.
@@ -307,6 +312,29 @@
 > 한 노드가 가지고 있는 정보가 많아 같은 block 단위의 데이터 로드 시 보다 의미 있는 데이터가 많이 포함되어 있다.
 >
 > hash index 사용 시에는 삽입/삭제/조회의 시간 복잡도가 O(1) 이지만 equality(=) 조회만 가능하고 범위 기반 검색이나 정렬에는 사용될 수 없다는 단점이 있다.
+
+### Clustered index
+> 데이터 페이지는 실제 데이터가 저장된 영역으로 clustered index 의 leaf node 는 데이터 페이지를 담고 있다.    
+> 테이블 생성 시 하나의 칼럼에 Primary key 를 지정하면 해당 칼럼에 대한 clustered index 가 생성된다.  
+> clustered index 는 테이블 당 한개씩만 존재한다. 그래서 테이블에서 index 를 걸면 가장 효율적일거 같은 칼럼을 
+> clustered index 로 지정한다.
+>  
+> 예를 들어 id 칼럼을 PK 로 지정하면 clustered index 가 생성되면서 id 칼럼을 기준으로 정렬된 인덱스를 생성한다.  
+> 해당 인덱스의 leaf node 에는 id 칼럼과 실제 데이터가 저장된 영역인 데이터 페이지가 저장되어 있다.    
+> 그래서 해당 인덱스를 통해서 조회하게 되면 추가적인 조회가 필요없이 모든 칼럼의 데이터를 조회할 수 있다.  
+
+### Non-clustered index
+> 데이터 페이지는 그냥 둔 상태에서 별도의 페이지에 인덱스를 구성한다.  
+> 인덱스 노드는 인덱스 칼럼과 데이터 페이지의 포인터로 구성된다.  
+> 예를 들어 phone 칼럼에 index 를 걸었다고 가정하자. 그럼 Non-clustered index 가 생성되어 phone 칼럼을 기준으로
+> 정렬된 인덱스를 생성한다. 해당 인덱스의 leaf node 에는 phone 칼럼과 데이터 페이지의 포인터가 저장되어 있다.
+> 그래서 해당 인덱스를 통해서 조회하게 되면 phone 칼럼을 기준으로 검색하여 데이터 페이지의 포인터를 찾은 후에 
+> 데이터 페이지의 포인터를 통해 데이터 페이지를 조회하는 추가 작업이 존재한다.  
+> 그래서 Non-clustered index 에 비해 clustered index 가 성능적으로 더 좋다.   
+
+### 참조사이트
+> [[SQL] Clustered Index & Non-Clustered Index](https://velog.io/@gillog/SQL-Clustered-Index-Non-Clustered-Index)
+> [[SQL] 인덱스 (클러스터, 비클러스터) 개념](https://mongyang.tistory.com/75)
 
 ---
 
