@@ -259,12 +259,16 @@
 > 먼저 lock 을 획득한 tx 에서 수정 후 commit 한 후에 다음 tx 에서 대기상태 후 write lock 을 걸어서 조회하려하면 rollback 이 수행된다.  
 > 즉 PostgreSQL 은 locking read 를 걸든 안걸든 MVCC + REPEATABLE READ 가 동작하는 방식이 동일하다.
 >
-> 종류
+> **종류**  
 > write-lock: `select ... for update`  
-> 조회 시 뒤에 `for update` 를 기재하여 다른 tx 에서는 read-lock 및 write-lock 를 모두 걸 수 없도록 write-lock 을 건다.
+> 조회 시 뒤에 `for update` 를 기재하여 다른 tx 에서는 read-lock 및 write-lock 를 모두 걸 수 없도록 write-lock 을 건다.  
+> MySQL 에서 Lost update 를 방지하기 위한 write-lock 은 update 하는 row 의 특정 칼럼이 증감 연산을 하여 update 가 누락되지 않고 모두 수행되어야
+> 하는 경우에 유용하다. 
+> 예시 1) 메시징 서비스에서 메시지 읽음 처리를 통해서 unreadCount 를 감소시키는 update 쿼리 연산  
+> 예시 2) 송금과 출금 서비스  
 >
 > read-lock: `select ... for share`  
-> 조회 시 뒤에 `for share` 를 기재하여 다른 tx 에서는 read-lock 만 걸 수 있도록 read-lock 을 건다.
+> 조회 시 뒤에 `for share` 를 기재하여 다른 tx 에서는 read-lock 만 걸 수 있도록 read-lock 을 건다.  
 
 ---
 
