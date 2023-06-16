@@ -367,15 +367,6 @@
 
 ---
 
-## Primary key
-### Sequential key
-> TODO
-
-### UUIDv4
-> TODO
-
----
-
 ## DBCP(DB Connection Pool)
 ### DB 와 Application 과 연결
 > Application 과 DB 서버는 일반적으로 분리된 서버로 구성되며 둘의 연결은 TCP 기반으로 동작한다.
@@ -393,7 +384,7 @@
 > `max_connections`: client 와 맺을 수 있는 최대 connection 수   
 > 
 > `wait_timeout`  
-> connection 이 inactive 할 때 (사용되지 않을 때) 다시 요청이 오기까지 얼마의 시간을 기다린 뒤에 close 할 것인지를 결정.  
+> connection 이 inactive 할 때 (사용되지 않을 때) 다시 요청이 오기까지 얼마의 시간을 기다린 뒤에 close 할 것인지를 결정. 기본값은 28800 으로 8시간이다.  
 > 비정상적인 connection 종료, connection 이 다 쓰고 반환이 안된 경우, 네트워크가 단절된 경우 application 이 가지고 있던 connection 을 
 > DB 서버에 close 를 하지 못한 상태가 될 수 있다.
 > 이렇게 되면 DB 서버의 connection 들은 close 가 안되어 있어 누군가와 연결이 되어 있는 상태이지만 실제로는 사용이 될 수 없는 상태가 되어 
@@ -429,8 +420,13 @@
 > wait_timeout 이 되어버리면 도중에 에러가 날 수 있음으로 wait_timeout 이 발생하지 않도록 maxLifetime 을 wait_timeout 보다 몇 초 정도 적게 설정하자.  
 >
 > `connectionTimeout`  
-> pool 에서 connection 을 받기 위해 최대로 대기하는 시간.  
+> pool 에서 connection 을 받기 위해 최대로 대기하는 시간. 디폴트는 30000 으로 30초이다.    
 > 트래픽이 몰려 pool 에 있는 connection 이 모두 사용되고 있을 때 추가로 요청이 발생하면 해당 요청은 pool 에서 connection 을 받기 위해 대기하게 된다.
 > 이때 connectionTimeout 에 설정한 시간까지 요청이 대기하게 되고 대기 시간이 설정한 시간을 넘어가면 Exception 이 발생하게 된다.    
 > connectionTimeout 은 결국 트래픽이 몰렸을 때 애플리케이션을 사용하는 유저가 최대 얼마의 시간까지 기다리게할 것인가를 설정하는 값이다.  
 > 일반적으로 사용자는 10초 이상을 응답 대기에 사용하지 않을 가능성이 크기 때문에 적절한 값을 설정하는 것이 중요하다.  
+
+### TODO
+> [JDBC 커넥션 풀들의 리소스 관리 방식 이해하기](https://kakaocommerce.tistory.com/45)  
+> [Commons DBCP 이해하기](https://d2.naver.com/helloworld/5102792)  
+> [JDBC Internal - 타임아웃의 이해](https://d2.naver.com/helloworld/1321)  
