@@ -8,29 +8,40 @@ transaction-isolation = REPEATABLE-READ
 collation-server = utf8mb4_general_ci
 character-set-server = utf8mb4
 character-set-filesystem = utf8mb4
+activate_all_roles_on_login = ON
+innodb_table_locks = ON
+general_log = ON
+
+binlog_format = 2   # 2:ROW
+innodb_autoinc_lock_mode = 2    # 2: only use binlog_format = 2
+
 
 ### For Dev
 max_connections = 100
 
 innodb_sort_buffer_size = 5M
 
-innodb_log_files_in_group = 2
-innodb_log_file_size = 1024M
+## innodb_redo_log_capacity = innodb_buffer_pool_size
+innodb_redo_log_capacity = 1G
+innodb_buffer_pool_size = 1G
 
-innodb_buffer_pool_size = 200M
+## innodb_buffer_pool_instances = innodb_page_cleaners
 innodb_buffer_pool_instances = 1
-innodb_io_capacity = 100
-innodb_io_capacity_max = 400
+innodb_page_cleaners = 1
+
+## ------------------------------------------------------
 
 ### For Production
 #max_connections = 512
 
 #innodb_sort_buffer_size = 64M
 
-#innodb_log_files_in_group = 3
-#innodb_log_file_size = 2048M
+## innodb_redo_log_capacity = innodb_buffer_pool_size
+#innodb_redo_log_capacity = 4G
+#innodb_buffer_pool_size = 4G
 
-#innodb_buffer_pool_size = 20G
-#innodb_buffer_pool_instances = 10
-#innodb_io_capacity = 1000
-#innodb_io_capacity_max = 5000
+## innodb_buffer_pool_instances = innodb_page_cleaners
+#innodb_buffer_pool_instances = 8
+#innodb_page_cleaners = 8
+
+#default_table_encryption = ON
