@@ -273,6 +273,11 @@
 ---
 
 ## Index
+### 특징
+> 조회 속도의 향상 및 시스템 부하를 줄여, 시스템 전체 성능 향상을 위해서 사용한다.  
+> 하지만 index 를 위한 추가 저장 공간이 필요하고 데이터가 많이 있다면 생성에 많은 시간이 걸린다.  
+> INSERT, UPDATE, DELETE 와 같이 조회 외에 데이터 업데이트가 자주 발생하면 성능이 많이 하락할 수 있다.  
+
 ### 사용되는 곳
 > 1.where 조건 시 full-scan 이 아닌 인덱스 스캔으로 빠르게 조회.  
 > 2.order by 및 group by 시 빠른 처리.
@@ -312,6 +317,29 @@
 >
 > hash index 사용 시에는 삽입/삭제/조회의 시간 복잡도가 O(1) 이지만 equality(=) 조회만 가능하고 범위 기반 검색이나 정렬에는 사용될 수 없다는 단점이 있다.
 
+### Clustered index
+> 데이터 페이지는 실제 데이터가 저장된 영역으로 clustered index 의 leaf node 는 데이터 페이지를 담고 있다.    
+> 테이블 생성 시 하나의 칼럼에 Primary key 를 지정하면 해당 칼럼에 대한 clustered index 가 생성된다.  
+> clustered index 는 테이블 당 한개씩만 존재한다. 그래서 테이블에서 index 를 걸면 가장 효율적일거 같은 칼럼을 
+> clustered index 로 지정한다.
+>  
+> 예를 들어 id 칼럼을 PK 로 지정하면 clustered index 가 생성되면서 id 칼럼을 기준으로 정렬된 인덱스를 생성한다.  
+> 해당 인덱스의 leaf node 에는 id 칼럼과 실제 데이터가 저장된 영역인 데이터 페이지가 저장되어 있다.    
+> 그래서 해당 인덱스를 통해서 조회하게 되면 추가적인 조회가 필요없이 모든 칼럼의 데이터를 조회할 수 있다.  
+
+### Non-clustered index
+> 데이터 페이지는 그냥 둔 상태에서 별도의 페이지에 인덱스를 구성한다.  
+> 인덱스 노드는 인덱스 칼럼과 데이터 페이지의 포인터로 구성된다.  
+> 예를 들어 phone 칼럼에 index 를 걸었다고 가정하자. 그럼 Non-clustered index 가 생성되어 phone 칼럼을 기준으로
+> 정렬된 인덱스를 생성한다. 해당 인덱스의 leaf node 에는 phone 칼럼과 데이터 페이지의 포인터가 저장되어 있다.
+> 그래서 해당 인덱스를 통해서 조회하게 되면 phone 칼럼을 기준으로 검색하여 데이터 페이지의 포인터를 찾은 후에 
+> 데이터 페이지의 포인터를 통해 데이터 페이지를 조회하는 추가 작업이 존재한다.  
+> 그래서 Non-clustered index 에 비해 clustered index 가 성능적으로 더 좋다.   
+
+### 참조사이트
+> [[SQL] Clustered Index & Non-Clustered Index](https://velog.io/@gillog/SQL-Clustered-Index-Non-Clustered-Index)
+> [[SQL] 인덱스 (클러스터, 비클러스터) 개념](https://mongyang.tistory.com/75)
+
 ---
 
 ## Sharding
@@ -339,15 +367,6 @@
 
 ---
 
-## Primary key
-### Sequential key
-> TODO
-
-### UUIDv4
-> TODO
-
----
-
 ## DBCP(DB Connection Pool)
 ### DB 와 Application 과 연결
 > Application 과 DB 서버는 일반적으로 분리된 서버로 구성되며 둘의 연결은 TCP 기반으로 동작한다.
@@ -365,7 +384,7 @@
 > `max_connections`: client 와 맺을 수 있는 최대 connection 수   
 > 
 > `wait_timeout`  
-> connection 이 inactive 할 때 (사용되지 않을 때) 다시 요청이 오기까지 얼마의 시간을 기다린 뒤에 close 할 것인지를 결정.  
+> connection 이 inactive 할 때 (사용되지 않을 때) 다시 요청이 오기까지 얼마의 시간을 기다린 뒤에 close 할 것인지를 결정. 기본값은 28800 으로 8시간이다.  
 > 비정상적인 connection 종료, connection 이 다 쓰고 반환이 안된 경우, 네트워크가 단절된 경우 application 이 가지고 있던 connection 을 
 > DB 서버에 close 를 하지 못한 상태가 될 수 있다.
 > 이렇게 되면 DB 서버의 connection 들은 close 가 안되어 있어 누군가와 연결이 되어 있는 상태이지만 실제로는 사용이 될 수 없는 상태가 되어 
@@ -401,8 +420,13 @@
 > wait_timeout 이 되어버리면 도중에 에러가 날 수 있음으로 wait_timeout 이 발생하지 않도록 maxLifetime 을 wait_timeout 보다 몇 초 정도 적게 설정하자.  
 >
 > `connectionTimeout`  
-> pool 에서 connection 을 받기 위해 최대로 대기하는 시간.  
+> pool 에서 connection 을 받기 위해 최대로 대기하는 시간. 디폴트는 30000 으로 30초이다.    
 > 트래픽이 몰려 pool 에 있는 connection 이 모두 사용되고 있을 때 추가로 요청이 발생하면 해당 요청은 pool 에서 connection 을 받기 위해 대기하게 된다.
 > 이때 connectionTimeout 에 설정한 시간까지 요청이 대기하게 되고 대기 시간이 설정한 시간을 넘어가면 Exception 이 발생하게 된다.    
 > connectionTimeout 은 결국 트래픽이 몰렸을 때 애플리케이션을 사용하는 유저가 최대 얼마의 시간까지 기다리게할 것인가를 설정하는 값이다.  
 > 일반적으로 사용자는 10초 이상을 응답 대기에 사용하지 않을 가능성이 크기 때문에 적절한 값을 설정하는 것이 중요하다. (0.5초에서 3초 사이 정도로 하는 것이 권장된다.)
+
+### TODO
+> [JDBC 커넥션 풀들의 리소스 관리 방식 이해하기](https://kakaocommerce.tistory.com/45)  
+> [Commons DBCP 이해하기](https://d2.naver.com/helloworld/5102792)  
+> [JDBC Internal - 타임아웃의 이해](https://d2.naver.com/helloworld/1321)  
