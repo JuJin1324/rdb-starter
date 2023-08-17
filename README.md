@@ -430,3 +430,47 @@
 > [JDBC 커넥션 풀들의 리소스 관리 방식 이해하기](https://kakaocommerce.tistory.com/45)  
 > [Commons DBCP 이해하기](https://d2.naver.com/helloworld/5102792)  
 > [JDBC Internal - 타임아웃의 이해](https://d2.naver.com/helloworld/1321)  
+
+---
+
+## PK 생성 전략
+### Sequential Number
+> Java + JPA 를 기준으로 long 타입을 사용하며 long 타입은 8 byte 이다.  
+> 8 byte 는 64 bit 이며 최댓값은 9,223,372,036,854,775,807(922경)이다.  
+> 이 선택지의 주요 컨셉은 auto incremental ID를 선택했을 때 외부에 노출되는 것이 문제라면, 외부에 노출될 때 hashing 을 통해서 노출하자라는 것이다.   
+> 예를 들면 ID가 12345 일 때 hashing 을 통해서 ‘3sy561e’ 와 같이 변환해서 노출할 수 있다. 
+> 해싱에서는 salt 로 사용되는 값을 정할 수 있는데 이 값을 관리하여 ‘3sy561e’ 라는 값을 다시 12345 와 같이 변환할 수 있다. 
+> 따라서 이 값은 외부에 노출되면 안된다.  
+
+### UUID 
+> Universally Unique Identifier  
+> 중복되는 UUID 를 생성활 확률은 극히 희박하다. 거의 0% 에 수렴한다고 보면 된다.  
+> UUID 중 Version 4 의 경우 랜덤으로 생성한다. 이렇게 랜덤으로 생성되는 UUIDv4 를 B-Tree 를 사용하는 MySQL 에 PK 로 사용하는 경우 
+> INSERT, DELETE 시 B-Tree 재배열이 발생하여 오버헤드가 발생한다. 이로인해 대량의 데이터 발생 시 Sequential Number 에 비해서 성능이 낮다.      
+> 또한 길이도 32 byte 의 문자열이며 바이너리로 저장시 16 byte 길이로 저장된다.  
+
+### TSID
+> Time-Sorted Unique Identifier 를 생성하는 Java Library 이다.  
+> [GitHub - tsid-creator](https://github.com/f4b6a3/tsid-creator) 에서 자세한 내용을 확인할 수 있다.  
+> 숫자로 저장 시 64 bit long 타입으로 저장할 수 있다.  
+> 문자열로 저장 시 13 글자 길이의 문자열로 저장할 수 있다.   
+> 문자열 포맷은 Base 64 포멧이다.  
+> 1 밀리세컨드 마다 만들 수 있는 TSID 의 최대 갯수는 4,096개이다. 1 초에는 4,096,000 개이다.  
+
+### ULID
+> Universally Unique Lexicographically Sortable Identifier  
+> 문자열로 저장 시 26 글자 길이의 문자열로 저장할 수 있다.  
+> 바이트로 저장 시 16 byte 길의이 배열로 저장할 수 있다.  
+> UUID 및 GUID 로 저장할 수 있다.
+> 
+> ULID는 생성 순서를 밀리세컨 단위로 기록할 수 있어서, 생성 순서대로 정렬을 할 때 편하다.  
+> 만약 같은 밀리세컨드 단위까지 일치하는 시간에 만들어졌고, 여러 컴퓨터에서 사용한다면 순서는 랜덤이 된다.  
+> 애초에 ULID는 UUID의 단점을 극복하고자 만들어졌다. (UUID는 타임스탬프 같은 배경 없이 그냥 무작위의 값을 생성해낸다.)  
+> Crockford’s Base32 에 기반해서 만들어졌기 때문에 (I, L, O, U)는 제외된다. (제외되는 이유는 사람 눈에 헷갈리기 때문이다). 
+> 또한 ULID는 UUID를 생성하는 것보다 나은 성능을 보이기도 한다.  
+> 
+> 충돌 가능성: 위의 논리대로라면 1ms에 2^80개까지 만들수 있다는 것이다.
+
+### 참조사이트
+> [[시스템 디자인] ID Generator 알아보기 (feat: Twitter Snowflake, tsid)](https://tech-monster.tistory.com/228)
+> [UUID vs ULID](https://velog.io/@injoon2019/UUID-vs-ULID)
